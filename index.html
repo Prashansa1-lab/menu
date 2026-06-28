@@ -1,0 +1,928 @@
+bash
+
+cat > /mnt/user-data/outputs/index.html << 'HTMLEOF'
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Menu</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;1,400&family=EB+Garamond:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  background: #f0e8d8;
+  font-family: 'EB Garamond', Georgia, serif;
+  color: #1a1008;
+}
+
+/* ── EACH PAGE ── */
+.page {
+  max-width: 780px;
+  margin: 40px auto;
+  background: #f7f0e3;
+  position: relative;
+  padding: 30px;
+}
+
+/* outer gold border */
+.page-inner {
+  border: 1.5px solid #b8922a;
+  padding: 28px 36px 36px;
+  position: relative;
+  min-height: 600px;
+}
+
+/* corner vine marks */
+.page-inner::before,
+.page-inner::after {
+  content: '';
+  position: absolute;
+  width: 28px; height: 28px;
+  border-color: #b8922a;
+  border-style: solid;
+}
+.page-inner::before { top: -1px; left: -1px; border-width: 2px 0 0 2px; }
+.page-inner::after  { bottom: -1px; right: -1px; border-width: 0 2px 2px 0; }
+
+.corner-tr, .corner-bl {
+  position: absolute;
+  width: 28px; height: 28px;
+  border-color: #b8922a;
+  border-style: solid;
+}
+.corner-tr { top: -1px; right: -1px; border-width: 2px 2px 0 0; }
+.corner-bl { bottom: -1px; left: -1px; border-width: 0 0 2px 2px; }
+
+/* side vine decorations */
+.vine-left, .vine-right {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 22px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+.vine-left  { left: -12px; }
+.vine-right { right: -12px; }
+.vine-left svg, .vine-right svg { fill: #b8922a; opacity: .7; }
+
+/* ── CREST ── */
+.crest {
+  text-align: center;
+  margin-bottom: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+}
+.crest-line {
+  flex: 1;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, #b8922a 40%, #b8922a 60%, transparent);
+}
+.crest svg { width: 90px; height: 52px; fill: #b8922a; }
+
+/* ── SECTION TITLE BAND ── */
+.section-band {
+  background: repeating-linear-gradient(
+    135deg,
+    #c8a96e 0px, #c8a96e 3px,
+    #b07e2a 3px, #b07e2a 9px,
+    #c8a96e 9px, #c8a96e 12px,
+    #d4a843 12px, #d4a843 18px
+  );
+  text-align: center;
+  padding: 10px 20px;
+  margin: 0 -36px 24px;
+}
+.section-band h1 {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.55rem;
+  font-weight: 700;
+  color: #1a1008;
+  letter-spacing: .06em;
+  text-shadow: 0 1px 0 rgba(255,255,255,.25);
+}
+
+/* plain section title (no band) */
+.section-title-plain {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.6rem;
+  font-weight: 700;
+  color: #1a1008;
+  margin-bottom: 4px;
+}
+.section-note {
+  font-style: italic;
+  font-size: .93rem;
+  color: #5a4020;
+  margin-bottom: 22px;
+}
+
+/* ── MENU ITEM ROWS ── */
+.item-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 10px;
+  margin-bottom: 2px;
+}
+.item-name {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.05rem;
+  font-weight: 700;
+}
+.item-price {
+  font-family: 'Playfair Display', serif;
+  font-weight: 700;
+  font-size: 1.05rem;
+  white-space: nowrap;
+}
+.item-desc {
+  font-style: italic;
+  font-size: .93rem;
+  color: #3a2a10;
+  margin-bottom: 14px;
+  text-align: center;
+}
+.item-sub {
+  font-size: .93rem;
+  color: #3a2a10;
+  margin-bottom: 14px;
+}
+
+/* two-column layout */
+.two-col {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  column-gap: 48px;
+}
+
+/* center-column layout (Benedict style) */
+.center-block {
+  text-align: center;
+  margin-bottom: 12px;
+}
+
+/* right-column layout */
+.right-col {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  column-gap: 32px;
+}
+.right-block { text-align: center; margin-bottom: 12px; }
+
+/* dots leader */
+.dots {
+  flex: 1;
+  border-bottom: 2px dotted #b8922a;
+  margin: 0 6px 4px;
+  opacity: .5;
+}
+
+/* gold rule divider */
+.gold-rule {
+  text-align: center;
+  color: #b8922a;
+  font-size: .75rem;
+  letter-spacing: .3em;
+  margin: 18px 0;
+}
+
+/* sub-heading */
+.sub-heading {
+  font-family: 'Playfair Display', serif;
+  font-weight: 700;
+  font-size: 1rem;
+  margin: 18px 0 4px;
+}
+
+/* ── WAFFLE / HOTCAKE NAV ── */
+nav {
+  background: #1a1008;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0;
+  position: sticky;
+  top: 0;
+  z-index: 200;
+  border-bottom: 2px solid #b8922a;
+}
+nav a {
+  color: #d4a843;
+  text-decoration: none;
+  font-family: 'EB Garamond', serif;
+  font-size: .82rem;
+  letter-spacing: .1em;
+  padding: 10px 16px;
+  border-right: 1px solid rgba(184,146,42,.2);
+  transition: background .2s;
+}
+nav a:last-child { border-right: none; }
+nav a:hover { background: rgba(184,146,42,.15); }
+
+/* ── FOOD PHOTO ── */
+.photo-right {
+  float: right;
+  width: 160px;
+  height: 120px;
+  object-fit: cover;
+  margin: 0 0 12px 20px;
+  border: 1px solid #b8922a;
+}
+.photo-bottom {
+  display: block;
+  width: 220px;
+  height: 160px;
+  object-fit: cover;
+  margin: 20px auto 0;
+  border: 1px solid #b8922a;
+}
+.clearfix::after { content:''; display:table; clear:both; }
+
+/* callout box */
+.callout-box {
+  border: 1.5px solid #b8922a;
+  background: #f0e8d8;
+  padding: 10px 16px;
+  margin: 16px 0;
+  text-align: center;
+  font-size: .88rem;
+  font-style: italic;
+  color: #3a2a10;
+}
+
+@media (max-width: 640px) {
+  .page { margin: 10px; padding: 12px; }
+  .page-inner { padding: 16px 14px 24px; }
+  .section-band { margin: 0 -14px 18px; }
+  .two-col, .right-col { grid-template-columns: 1fr; }
+  nav a { font-size: .72rem; padding: 8px 10px; }
+  .photo-right { width: 110px; height: 85px; }
+}
+</style>
+</head>
+<body>
+
+<nav>
+  <a href="#egg-platters">Egg Platters</a>
+  <a href="#omelettes">Omelettes</a>
+  <a href="#hotcakes">Hotcakes & Waffles</a>
+  <a href="#sides">Sides & Drinks</a>
+  <a href="#salads">Salads</a>
+  <a href="#burgers">Burgers</a>
+  <a href="#sandwiches">Sandwiches</a>
+  <a href="#quesadillas">Quesadillas</a>
+</nav>
+
+<!-- ══════════════════════════════════
+     PAGE 1 — EGG PLATTERS
+════════════════════════════════════ -->
+<div class="page" id="egg-platters">
+  <div class="page-inner">
+    <div class="corner-tr"></div><div class="corner-bl"></div>
+
+    <!-- Vine left -->
+    <div class="vine-left">
+      <svg viewBox="0 0 20 120" width="18" height="80"><path d="M10 0 Q4 20 10 30 Q16 40 10 50 Q4 60 10 70 Q16 80 10 90 Q4 100 10 110 Q14 118 10 120" stroke="#b8922a" stroke-width="1.5" fill="none"/><circle cx="10" cy="30" r="3"/><circle cx="10" cy="60" r="3"/><circle cx="10" cy="90" r="3"/></svg>
+    </div>
+    <!-- Vine right -->
+    <div class="vine-right">
+      <svg viewBox="0 0 20 120" width="18" height="80"><path d="M10 0 Q16 20 10 30 Q4 40 10 50 Q16 60 10 70 Q4 80 10 90 Q16 100 10 110 Q6 118 10 120" stroke="#b8922a" stroke-width="1.5" fill="none"/><circle cx="10" cy="30" r="3"/><circle cx="10" cy="60" r="3"/><circle cx="10" cy="90" r="3"/></svg>
+    </div>
+
+    <!-- Crest -->
+    <div class="crest">
+      <div class="crest-line"></div>
+      <svg viewBox="0 0 120 60" xmlns="http://www.w3.org/2000/svg">
+        <!-- left curl -->
+        <path d="M15 30 Q10 15 20 10 Q28 6 30 15 Q32 22 25 25" stroke="#b8922a" stroke-width="1.5" fill="none"/>
+        <circle cx="15" cy="30" r="2.5"/>
+        <!-- right curl -->
+        <path d="M105 30 Q110 15 100 10 Q92 6 90 15 Q88 22 95 25" stroke="#b8922a" stroke-width="1.5" fill="none"/>
+        <circle cx="105" cy="30" r="2.5"/>
+        <!-- center ornament -->
+        <path d="M50 30 L60 10 L70 30 L60 50 Z" fill="#b8922a" opacity=".8"/>
+        <circle cx="60" cy="30" r="5" fill="#f7f0e3"/>
+        <circle cx="60" cy="30" r="2.5" fill="#b8922a"/>
+        <!-- top flourish -->
+        <path d="M45 12 Q52 4 60 8 Q68 4 75 12" stroke="#b8922a" stroke-width="1.2" fill="none"/>
+        <!-- lines -->
+        <line x1="30" y1="30" x2="48" y2="30" stroke="#b8922a" stroke-width="1"/>
+        <line x1="72" y1="30" x2="90" y2="30" stroke="#b8922a" stroke-width="1"/>
+      </svg>
+      <div class="crest-line"></div>
+    </div>
+
+    <div class="section-band"><h1>Egg Platters</h1></div>
+
+    <p style="text-align:center; font-style:italic; font-size:.95rem; margin-bottom:28px; color:#3a2a10;">
+      All egg platters and omelets come with home fries and toast
+    </p>
+
+    <!-- 2 eggs / 3 eggs -->
+    <div class="two-col clearfix">
+      <div>
+        <div class="item-row">
+          <span class="item-name">2 Eggs</span>
+          <span class="item-price">$10</span>
+        </div>
+        <div style="font-size:.92rem; margin-bottom:14px;">
+          with your choice of breakfast meat <strong>....... $13</strong>
+        </div>
+        <div class="item-row">
+          <span class="item-name">3 Eggs</span>
+          <span class="item-price">$12</span>
+        </div>
+        <div style="font-size:.92rem;">
+          with your choice of breakfast meat ...... <strong>$15</strong>
+        </div>
+      </div>
+      <div style="text-align:center; padding-top:8px;">
+        <!-- coffee cup icon -->
+        <svg width="70" height="70" viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M15 35 Q15 60 40 62 Q65 60 65 35 Z" stroke="#333" stroke-width="2" fill="#f7f0e3"/>
+          <path d="M65 38 Q78 38 78 48 Q78 58 65 55" stroke="#333" stroke-width="2" fill="none"/>
+          <ellipse cx="40" cy="35" rx="25" ry="5" stroke="#333" stroke-width="1.5" fill="#f7f0e3"/>
+          <path d="M10 64 L70 64" stroke="#333" stroke-width="2"/>
+          <!-- steam -->
+          <path d="M28 28 Q30 22 28 16" stroke="#888" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+          <path d="M40 26 Q42 20 40 14" stroke="#888" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+          <path d="M52 28 Q54 22 52 16" stroke="#888" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+        </svg>
+      </div>
+    </div>
+
+    <div class="gold-rule">— ✦ —</div>
+
+    <!-- Ham / Steak / Surf -->
+    <div style="text-align:center;">
+      <div class="item-row" style="justify-content:center; gap:40px;">
+        <div>
+          <div class="item-row"><span class="item-name">Ham Steak &amp; Egg</span><span class="item-price" style="margin-left:16px;">$16</span></div>
+          <div class="item-desc">12 oz &nbsp; Ham Steak</div>
+        </div>
+      </div>
+      <div class="item-row" style="justify-content:center; gap:40px;">
+        <div>
+          <div class="item-row"><span class="item-name">Steak &amp; Egg</span><span class="item-price" style="margin-left:16px;">$17</span></div>
+          <div class="item-desc">8 oz &nbsp; New York strip</div>
+        </div>
+      </div>
+      <div class="item-row" style="justify-content:center; gap:40px;">
+        <div>
+          <div class="item-row"><span class="item-name">SURF TURF &amp; Egg</span><span class="item-price" style="margin-left:16px;">$23</span></div>
+          <div class="item-desc">8 oz New York strip &amp; Shrimp</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="gold-rule">— ✦ —</div>
+
+    <!-- Benedicts -->
+    <div>
+      <div class="sub-heading">Country Benedict <span style="font-weight:400;">$15</span></div>
+      <div class="item-sub">2 poached eggs, sausage on English muffin topped with sausage gravy</div>
+
+      <div class="sub-heading">Eggs Benedict <span style="font-weight:400;">$17</span></div>
+      <div class="item-sub">2 poached eggs, Canadian bacon on English muffin topped with hollandaise sauce</div>
+
+      <div class="sub-heading">East Coast Benedict <span style="font-weight:400;">$19</span></div>
+      <div class="item-sub">2 poached eggs, Crab meat on English muffin topped with hollandaise sauce</div>
+
+      <div class="sub-heading">Creamed Chipped Beef <span style="font-weight:400;">$15</span></div>
+      <div class="sub-heading">Sausage Gravy <span style="font-weight:400;">$15</span></div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ══════════════════════════════════
+     PAGE 2 — OMELETTES
+════════════════════════════════════ -->
+<div class="page" id="omelettes">
+  <div class="page-inner">
+    <div class="corner-tr"></div><div class="corner-bl"></div>
+    <div class="vine-left"><svg viewBox="0 0 20 120" width="18" height="80"><path d="M10 0 Q4 20 10 30 Q16 40 10 50 Q4 60 10 70 Q16 80 10 90 Q4 100 10 110 Q14 118 10 120" stroke="#b8922a" stroke-width="1.5" fill="none"/><circle cx="10" cy="30" r="3"/><circle cx="10" cy="60" r="3"/><circle cx="10" cy="90" r="3"/></svg></div>
+    <div class="vine-right"><svg viewBox="0 0 20 120" width="18" height="80"><path d="M10 0 Q16 20 10 30 Q4 40 10 50 Q16 60 10 70 Q4 80 10 90 Q16 100 10 110 Q6 118 10 120" stroke="#b8922a" stroke-width="1.5" fill="none"/><circle cx="10" cy="30" r="3"/><circle cx="10" cy="60" r="3"/><circle cx="10" cy="90" r="3"/></svg></div>
+
+    <div class="crest">
+      <div class="crest-line"></div>
+      <svg viewBox="0 0 120 60" xmlns="http://www.w3.org/2000/svg" width="90" height="52">
+        <path d="M15 30 Q10 15 20 10 Q28 6 30 15 Q32 22 25 25" stroke="#b8922a" stroke-width="1.5" fill="none"/><circle cx="15" cy="30" r="2.5"/>
+        <path d="M105 30 Q110 15 100 10 Q92 6 90 15 Q88 22 95 25" stroke="#b8922a" stroke-width="1.5" fill="none"/><circle cx="105" cy="30" r="2.5"/>
+        <path d="M50 30 L60 10 L70 30 L60 50 Z" fill="#b8922a" opacity=".8"/>
+        <circle cx="60" cy="30" r="5" fill="#f7f0e3"/><circle cx="60" cy="30" r="2.5" fill="#b8922a"/>
+        <path d="M45 12 Q52 4 60 8 Q68 4 75 12" stroke="#b8922a" stroke-width="1.2" fill="none"/>
+        <line x1="30" y1="30" x2="48" y2="30" stroke="#b8922a" stroke-width="1"/>
+        <line x1="72" y1="30" x2="90" y2="30" stroke="#b8922a" stroke-width="1"/>
+      </svg>
+      <div class="crest-line"></div>
+    </div>
+
+    <div class="section-title-plain">Omelettes</div>
+    <div class="section-note">All egg platters and omelets come with home fries and toast</div>
+
+    <div class="two-col">
+      <div>
+        <div class="item-row"><span class="item-name">Cheese Omelet</span><span class="item-price">$12</span></div>
+        <div style="height:14px;"></div>
+
+        <div class="item-row"><span class="item-name">Western Omelet</span><span class="item-price">$15</span></div>
+        <div class="item-sub">ham, green peppers, onions &amp; yellow american cheese</div>
+
+        <div class="item-row"><span class="item-name">Vegetable Omelet</span><span class="item-price">$15</span></div>
+        <div class="item-sub">green peppers, onions, mushrooms, tomato &amp; swiss cheese</div>
+
+        <div class="item-row"><span class="item-name">Rancher Omelet</span><span class="item-price">$16</span></div>
+        <div class="item-sub">ham, onions, mushrooms, Broccoli &amp; cheese</div>
+
+        <div class="item-row"><span class="item-name">Florentine Omelet</span><span class="item-price">$15</span></div>
+        <div class="item-sub">feta cheese &amp; spinach</div>
+
+        <div class="item-row"><span class="item-name">Country Omelet</span><span class="item-price">$16</span></div>
+        <div class="item-sub">mushrooms, onions, ham, green peppers, sausage, bacon &amp; yellow american cheese</div>
+      </div>
+
+      <div>
+        <div class="item-row"><span class="item-name">Kiymali Omelet</span><span class="item-price">$10</span></div>
+        <div class="item-sub">Bacon, Hamburger &amp; yellow american cheese</div>
+
+        <div class="item-row"><span class="item-name">Meat Lovers Omelet</span><span class="item-price">$16</span></div>
+        <div class="item-sub">ham, sausage, bacon &amp; yellow american cheese</div>
+
+        <div class="item-row"><span class="item-name">Bacon Omelet</span><span class="item-price">$14</span></div>
+        <div class="item-sub">bacon &amp; yellow american cheese</div>
+
+        <div class="item-row"><span class="item-name">Sausage Omelet</span><span class="item-price">$13</span></div>
+        <div class="item-sub">sausage &amp; yellow american cheese</div>
+
+        <div class="item-row"><span class="item-name">Crab Omelet</span><span class="item-price">$21</span></div>
+        <div class="item-sub">Crab &amp; yellow american cheese</div>
+
+        <div class="item-row"><span class="item-name">Shrimp Omelet</span><span class="item-price">$18</span></div>
+        <div class="item-sub">Shrimp &amp; yellow american cheese</div>
+
+        <div class="item-row"><span class="item-name">Seafood Omelet</span><span class="item-price">$23</span></div>
+        <div class="item-sub">crab, shrimp, old bay &amp; yellow american cheese</div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ══════════════════════════════════
+     PAGE 3 — HOTCAKES / FRENCH TOAST / WAFFLES
+════════════════════════════════════ -->
+<div class="page" id="hotcakes">
+  <div class="page-inner">
+    <div class="corner-tr"></div><div class="corner-bl"></div>
+    <div class="vine-left"><svg viewBox="0 0 20 120" width="18" height="80"><path d="M10 0 Q4 20 10 30 Q16 40 10 50 Q4 60 10 70 Q16 80 10 90 Q4 100 10 110 Q14 118 10 120" stroke="#b8922a" stroke-width="1.5" fill="none"/><circle cx="10" cy="30" r="3"/><circle cx="10" cy="60" r="3"/><circle cx="10" cy="90" r="3"/></svg></div>
+    <div class="vine-right"><svg viewBox="0 0 20 120" width="18" height="80"><path d="M10 0 Q16 20 10 30 Q4 40 10 50 Q16 60 10 70 Q4 80 10 90 Q16 100 10 110 Q6 118 10 120" stroke="#b8922a" stroke-width="1.5" fill="none"/><circle cx="10" cy="30" r="3"/><circle cx="10" cy="60" r="3"/><circle cx="10" cy="90" r="3"/></svg></div>
+
+    <div class="crest">
+      <div class="crest-line"></div>
+      <svg viewBox="0 0 120 60" xmlns="http://www.w3.org/2000/svg" width="90" height="52">
+        <path d="M15 30 Q10 15 20 10 Q28 6 30 15 Q32 22 25 25" stroke="#b8922a" stroke-width="1.5" fill="none"/><circle cx="15" cy="30" r="2.5"/>
+        <path d="M105 30 Q110 15 100 10 Q92 6 90 15 Q88 22 95 25" stroke="#b8922a" stroke-width="1.5" fill="none"/><circle cx="105" cy="30" r="2.5"/>
+        <path d="M50 30 L60 10 L70 30 L60 50 Z" fill="#b8922a" opacity=".8"/>
+        <circle cx="60" cy="30" r="5" fill="#f7f0e3"/><circle cx="60" cy="30" r="2.5" fill="#b8922a"/>
+        <path d="M45 12 Q52 4 60 8 Q68 4 75 12" stroke="#b8922a" stroke-width="1.2" fill="none"/>
+        <line x1="30" y1="30" x2="48" y2="30" stroke="#b8922a" stroke-width="1"/>
+        <line x1="72" y1="30" x2="90" y2="30" stroke="#b8922a" stroke-width="1"/>
+      </svg>
+      <div class="crest-line"></div>
+    </div>
+
+    <div class="section-title-plain">Hot cake &nbsp;/&nbsp; French Toast</div>
+    <div style="height:18px;"></div>
+
+    <!-- Single stack group -->
+    <div class="two-col" style="margin-bottom:10px;">
+      <div>
+        <div class="item-row"><span class="item-name">Single Stack <span style="font-weight:400;font-size:.9rem;">(1 piece)</span></span><span class="item-price">$8</span></div>
+        <div class="item-row"><span class="item-name">Sunny Single Stack</span><span class="item-price">$11</span></div>
+        <div class="item-row"><span class="item-name">Belly Single Stack</span><span class="item-price">$12</span></div>
+        <div class="item-row"><span class="item-name">Combo Single Stack</span><span class="item-price">$14</span></div>
+      </div>
+      <div style="font-style:italic; font-size:.9rem; color:#3a2a10; padding-top:22px;">
+        <div style="margin-bottom:6px;">comes with any style 2 eggs</div>
+        <div style="margin-bottom:6px;">comes with choice of breakfast meat</div>
+        <div>comes with choice of breakfast meat &amp; any style 2 eggs</div>
+      </div>
+    </div>
+
+    <div class="gold-rule">— ✦ —</div>
+
+    <div class="two-col" style="margin-bottom:10px;">
+      <div>
+        <div class="item-row"><span class="item-name">Short Stack <span style="font-weight:400;font-size:.9rem;">(2 piece)</span></span><span class="item-price">$10</span></div>
+        <div class="item-row"><span class="item-name">Sunny Short Stack</span><span class="item-price">$13</span></div>
+        <div class="item-row"><span class="item-name">Belly Short Stack</span><span class="item-price">$14</span></div>
+        <div class="item-row"><span class="item-name">Combo Short Stack</span><span class="item-price">$16</span></div>
+      </div>
+      <div style="font-style:italic; font-size:.9rem; color:#3a2a10; padding-top:22px;">
+        <div style="margin-bottom:6px;">comes with any style 2 eggs</div>
+        <div style="margin-bottom:6px;">comes with choice of breakfast meat</div>
+        <div>comes with choice of breakfast meat &amp; any style 2 eggs</div>
+      </div>
+    </div>
+
+    <div class="gold-rule">— ✦ —</div>
+
+    <div class="two-col" style="margin-bottom:16px;">
+      <div>
+        <div class="item-row"><span class="item-name">Tall Stack <span style="font-weight:400;font-size:.9rem;">(3 piece)</span></span><span class="item-price">$12</span></div>
+        <div class="item-row"><span class="item-name">Sunny Tall Stack</span><span class="item-price">$15</span></div>
+        <div class="item-row"><span class="item-name">Belly Tall Stack</span><span class="item-price">$16</span></div>
+        <div class="item-row"><span class="item-name">Combo Tall Stack</span><span class="item-price">$17</span></div>
+      </div>
+      <div style="font-style:italic; font-size:.9rem; color:#3a2a10; padding-top:22px;">
+        <div style="margin-bottom:6px;">comes with any style 2 eggs</div>
+        <div style="margin-bottom:6px;">comes with choice of breakfast meat</div>
+        <div>comes with choice of breakfast meat &amp; any style 2 eggs</div>
+      </div>
+    </div>
+
+    <!-- Rt50 -->
+    <div style="text-align:center; margin-bottom:22px;">
+      <div class="item-name">Rt50 Stack <span class="item-price">$23</span></div>
+      <div style="font-style:italic; font-size:.92rem; color:#3a2a10;">
+        2 Stack french toast or hotcakes<br>
+        home fries, &nbsp; cup of Fresh Fruit, &nbsp; any style 2 eggs<br>
+        choice of breakfast meat
+      </div>
+    </div>
+
+    <!-- WAFFLE -->
+    <div class="section-band" style="margin-bottom:18px;"><h1 style="font-size:1.2rem; letter-spacing:.2em;">WAFFLE</h1></div>
+
+    <div class="two-col">
+      <div>
+        <div class="item-row"><span class="item-name">WAFFLE</span><span class="item-price">$7</span></div>
+        <div style="font-size:.92rem; margin-bottom:4px;">with 2 eggs &nbsp; <strong>$10</strong></div>
+        <div style="font-size:.92rem; margin-bottom:14px;">with breakfast meat &nbsp; <strong>$11</strong></div>
+
+        <div class="item-row"><span class="item-name">M5 WAFFLE</span><span class="item-price">$10</span></div>
+        <div class="item-sub">topped with Walnuts, chocolate chip, Banana, Blueberry &amp; Strawberry</div>
+
+        <div class="item-row"><span class="item-name">Country WAFFLE</span><span class="item-price">$11</span></div>
+        <div class="item-sub">top with Creamed Chipped Beef or Sausage Gravy</div>
+
+        <div class="item-row"><span class="item-name">Firdevs Ala</span><span class="item-price">$10</span></div>
+        <div class="item-sub">Waffle topped with Banana, Blueberry &amp; Strawberry</div>
+      </div>
+      <div style="text-align:right; font-style:italic; font-size:.9rem; color:#3a2a10;">
+        <div style="font-weight:700; font-style:normal; margin-bottom:6px;">add Fruit Toppings $4</div>
+        <div>(strawberry)</div>
+        <div>(banana)</div>
+        <div>( grape)</div>
+        <div>(blueberry)</div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ══════════════════════════════════
+     PAGE 4 — BREAKFAST SIDES
+════════════════════════════════════ -->
+<div class="page" id="sides">
+  <div class="page-inner">
+    <div class="corner-tr"></div><div class="corner-bl"></div>
+    <div class="vine-left"><svg viewBox="0 0 20 120" width="18" height="80"><path d="M10 0 Q4 20 10 30 Q16 40 10 50 Q4 60 10 70 Q16 80 10 90 Q4 100 10 110 Q14 118 10 120" stroke="#b8922a" stroke-width="1.5" fill="none"/><circle cx="10" cy="30" r="3"/><circle cx="10" cy="60" r="3"/><circle cx="10" cy="90" r="3"/></svg></div>
+    <div class="vine-right"><svg viewBox="0 0 20 120" width="18" height="80"><path d="M10 0 Q16 20 10 30 Q4 40 10 50 Q16 60 10 70 Q4 80 10 90 Q16 100 10 110 Q6 118 10 120" stroke="#b8922a" stroke-width="1.5" fill="none"/><circle cx="10" cy="30" r="3"/><circle cx="10" cy="60" r="3"/><circle cx="10" cy="90" r="3"/></svg></div>
+
+    <div class="crest">
+      <div class="crest-line"></div>
+      <svg viewBox="0 0 120 60" xmlns="http://www.w3.org/2000/svg" width="90" height="52">
+        <path d="M15 30 Q10 15 20 10 Q28 6 30 15 Q32 22 25 25" stroke="#b8922a" stroke-width="1.5" fill="none"/><circle cx="15" cy="30" r="2.5"/>
+        <path d="M105 30 Q110 15 100 10 Q92 6 90 15 Q88 22 95 25" stroke="#b8922a" stroke-width="1.5" fill="none"/><circle cx="105" cy="30" r="2.5"/>
+        <path d="M50 30 L60 10 L70 30 L60 50 Z" fill="#b8922a" opacity=".8"/>
+        <circle cx="60" cy="30" r="5" fill="#f7f0e3"/><circle cx="60" cy="30" r="2.5" fill="#b8922a"/>
+        <path d="M45 12 Q52 4 60 8 Q68 4 75 12" stroke="#b8922a" stroke-width="1.2" fill="none"/>
+        <line x1="30" y1="30" x2="48" y2="30" stroke="#b8922a" stroke-width="1"/>
+        <line x1="72" y1="30" x2="90" y2="30" stroke="#b8922a" stroke-width="1"/>
+      </svg>
+      <div class="crest-line"></div>
+    </div>
+
+    <div class="section-title-plain">Breakfast Sides</div>
+    <div style="height:18px;"></div>
+
+    <div class="two-col">
+      <div>
+        <div style="font-size:.95rem; margin-bottom:12px;"><strong>meat choices:</strong> Bacon, Sausage, Scrapple, Ham,<br>Cornbeef Hash, Canadian Bacon, Porkroll &nbsp; <strong>$5</strong></div>
+
+        <div class="item-row"><span style="font-size:.95rem;">Bagel 4 with cream cheese</span><span class="item-price" style="font-size:.95rem;">$6</span></div>
+        <div class="item-row"><span style="font-size:.95rem;">Home Fries</span><span class="item-price" style="font-size:.95rem;">$5</span></div>
+        <div class="item-row"><span style="font-size:.95rem;">Grits</span><span class="item-price" style="font-size:.95rem;">$5</span></div>
+        <div style="height:12px;"></div>
+
+        <div style="text-align:center; font-size:.93rem; margin-bottom:10px;">
+          Fresh Cut Fruit<br>
+          <strong>Choices</strong>: Strawberry, Blueberry, Banana or Mixed Fruit<br>
+          Dish &nbsp;<strong>$5</strong> &nbsp;&nbsp;&nbsp; Bowl &nbsp;<strong>$9</strong>
+        </div>
+
+        <div style="text-align:center; font-size:.93rem;">
+          <div>Salsa &nbsp; <strong>$5</strong></div>
+          <div>Veggie &nbsp; <strong>$5</strong></div>
+          <div>fruit salad &nbsp; <strong>$5</strong></div>
+          <div>oatmeal &nbsp; <strong>$5</strong></div>
+        </div>
+      </div>
+      <div>
+        <div style="font-size:.93rem; margin-bottom:14px;"><strong>Toast choice: $3</strong> (white, wheat, rye, English muffin, or biscuit)</div>
+
+        <div style="text-align:center; font-size:.93rem; margin-bottom:8px;">
+          <div>Coffee &nbsp; <strong>$3</strong></div>
+          <div>Hot tea &nbsp; <strong>$3</strong></div>
+          <div>Milk or Juice &nbsp; Small <strong>$4</strong> &nbsp; Large <strong>$6</strong></div>
+          <div>Ice tea &nbsp; <strong>$3</strong></div>
+          <div>Choco milk &nbsp; <strong>$3</strong></div>
+          <div>Soda &nbsp; <strong>$3</strong></div>
+        </div>
+        <div style="font-size:.88rem; font-style:italic; color:#3a2a10; text-align:center;">
+          <strong>Juice choice</strong>: orange, apple, grape, v8, cranberry
+        </div>
+      </div>
+    </div>
+
+    <div class="gold-rule">— ✦ —</div>
+
+    <div class="section-title-plain" style="font-size:1.3rem;">Egg Sandwiches</div>
+    <div style="height:12px;"></div>
+
+    <div>
+      <div class="item-row"><span style="font-size:.95rem;">Egg &amp; Cheese</span><span class="item-price" style="font-size:.95rem;">$10</span></div>
+      <div class="item-row"><span style="font-size:.95rem;">Meat, Egg &amp; Cheese</span><span class="item-price" style="font-size:.95rem;">$13</span></div>
+      <div style="height:8px;"></div>
+      <div class="item-row"><span style="font-size:.95rem;">Double meat, Egg &amp; Cheese</span><span class="item-price" style="font-size:.95rem;">$16</span></div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ══════════════════════════════════
+     PAGE 5 — SALADS & APPETIZERS
+════════════════════════════════════ -->
+<div class="page" id="salads">
+  <div class="page-inner">
+    <div class="corner-tr"></div><div class="corner-bl"></div>
+    <div class="vine-left"><svg viewBox="0 0 20 120" width="18" height="80"><path d="M10 0 Q4 20 10 30 Q16 40 10 50 Q4 60 10 70 Q16 80 10 90 Q4 100 10 110 Q14 118 10 120" stroke="#b8922a" stroke-width="1.5" fill="none"/><circle cx="10" cy="30" r="3"/><circle cx="10" cy="60" r="3"/><circle cx="10" cy="90" r="3"/></svg></div>
+    <div class="vine-right"><svg viewBox="0 0 20 120" width="18" height="80"><path d="M10 0 Q16 20 10 30 Q4 40 10 50 Q16 60 10 70 Q4 80 10 90 Q16 100 10 110 Q6 118 10 120" stroke="#b8922a" stroke-width="1.5" fill="none"/><circle cx="10" cy="30" r="3"/><circle cx="10" cy="60" r="3"/><circle cx="10" cy="90" r="3"/></svg></div>
+
+    <div class="crest">
+      <div class="crest-line"></div>
+      <svg viewBox="0 0 120 60" xmlns="http://www.w3.org/2000/svg" width="90" height="52">
+        <path d="M15 30 Q10 15 20 10 Q28 6 30 15 Q32 22 25 25" stroke="#b8922a" stroke-width="1.5" fill="none"/><circle cx="15" cy="30" r="2.5"/>
+        <path d="M105 30 Q110 15 100 10 Q92 6 90 15 Q88 22 95 25" stroke="#b8922a" stroke-width="1.5" fill="none"/><circle cx="105" cy="30" r="2.5"/>
+        <path d="M50 30 L60 10 L70 30 L60 50 Z" fill="#b8922a" opacity=".8"/>
+        <circle cx="60" cy="30" r="5" fill="#f7f0e3"/><circle cx="60" cy="30" r="2.5" fill="#b8922a"/>
+        <path d="M45 12 Q52 4 60 8 Q68 4 75 12" stroke="#b8922a" stroke-width="1.2" fill="none"/>
+        <line x1="30" y1="30" x2="48" y2="30" stroke="#b8922a" stroke-width="1"/>
+        <line x1="72" y1="30" x2="90" y2="30" stroke="#b8922a" stroke-width="1"/>
+      </svg>
+      <div class="crest-line"></div>
+    </div>
+
+    <div style="display:flex; align-items:center; gap:16px; margin-bottom:16px;">
+      <div style="border:1.5px solid #b8922a; padding:6px 14px; font-family:'Playfair Display',serif; font-size:1rem; font-style:italic; white-space:nowrap;">Brunch Time</div>
+      <div class="section-band" style="flex:1; margin:0;"><h1>SALADS</h1></div>
+    </div>
+
+    <!-- Main salads -->
+    <div class="item-row"><span class="item-name">Ocean Rise</span><span class="item-price">$23</span></div>
+    <div class="item-sub">poached egg on top of crab meat, and chopped bacon, cucumber, tomato, onion, romaine &amp; cheddar cheese</div>
+
+    <div class="item-row"><span class="item-name">Brandy Salad</span><span class="item-price">$15</span></div>
+    <div class="item-sub">Grilled chicken &amp; bacon , cucumber, tomato, onion, iceberg, romaine &amp; cheddar cheese</div>
+
+    <div class="item-row"><span class="item-name">Grilled Seafood Salad</span><span class="item-price">$21</span></div>
+    <div class="item-sub">Shrimp, &amp; Crabmeat, cucumber, tomato, onion, iceberg, romaine &amp; cheddar cheese</div>
+
+    <div class="item-row"><span class="item-name">Chef Salad</span><span class="item-price">$14</span></div>
+    <div class="item-sub">turkey, ham, provolone cheese, cucumber, tomato, onion, iceberg, romaine &amp; american cheese</div>
+
+    <div class="item-row"><span class="item-name">Chicken Salad o/ Garden Salad</span><span class="item-price">$13</span></div>
+    <div class="item-sub">Chicken salad , cucumber, tomato, onion, iceberg, romaine &amp; cheddar cheese</div>
+
+    <!-- Special salads -->
+    <div style="font-family:'Playfair Display',serif; font-size:1.2rem; font-style:italic; color:#b8922a; margin:16px 0 10px; display:flex; align-items:center; gap:10px;">
+      <span>Special</span>
+      <svg width="24" height="16" viewBox="0 0 30 20"><path d="M5 10 Q10 2 15 10 Q20 18 25 10" stroke="#b8922a" stroke-width="1.5" fill="none"/></svg>
+      <span>Salads</span>
+    </div>
+
+    <div class="two-col">
+      <div>
+        <div class="item-row"><span class="item-name">Caesar Salad</span><span class="item-price">sm $7 &nbsp; lg $10</span></div>
+        <div class="item-sub">romaine, croutons, parmesan cheese &amp; tomato</div>
+
+        <div class="item-row"><span class="item-name">Greek Salad</span><span class="item-price">sm $8 &nbsp; lg $11</span></div>
+        <div class="item-sub">romaine, feta cheese, tomato, cucumber, onions, green pepper, olives &amp; pepperoncini</div>
+      </div>
+      <div>
+        <div style="font-size:.85rem; font-style:italic; color:#3a2a10; text-align:right; margin-bottom:10px;">
+          <strong>Add on Salads</strong><br>
+          Grilled Chicken · Breaded Chicken<br>
+          Grilled Shrimp · Crabmeat<br>
+          Walnut · Feta cheese
+        </div>
+        <div class="item-row"><span class="item-name">Cobb Salad</span><span class="item-price">sm $9 &nbsp; lg $12</span></div>
+        <div class="item-sub">romaine, tomato, walnut, onions, cheddar cheese &amp; bacon</div>
+
+        <div class="item-row"><span class="item-name">Spinach Salad</span><span class="item-price">sm $7 &nbsp; lg $10</span></div>
+        <div class="item-sub">spinach, mushroom, walnut, onions, &amp; feta cheese</div>
+      </div>
+    </div>
+
+    <!-- Appetizers -->
+    <div style="font-family:'Playfair Display',serif; font-size:1.25rem; color:#b8922a; font-style:italic; margin:14px 0 8px;">Appetizers</div>
+
+    <div class="two-col">
+      <div>
+        <div class="item-row"><span style="font-size:.93rem;">French Fries</span><span class="item-price" style="font-size:.93rem;">$5</span></div>
+        <div class="item-row"><span style="font-size:.93rem;">Onion Rings</span><span class="item-price" style="font-size:.93rem;">$8</span></div>
+        <div style="font-size:.92rem; margin-top:6px;"><strong>WING DINGs</strong> &nbsp; 5 pc — $10 &nbsp;&nbsp; 10pc — $16 &nbsp; with ranch</div>
+        <div style="font-size:.92rem;"><strong>Chicken tender</strong> &nbsp; 5 pc — $10 &nbsp;&nbsp; 10pc — $16 &nbsp; with ranch</div>
+        <div style="font-size:.92rem;"><strong>Butterfly shrimp</strong> &nbsp; 5pc &nbsp; $10 &nbsp; with cocktail sauce</div>
+        <div style="font-size:.92rem;"><strong>Mozzerella Sticks</strong> &nbsp; 5pc &nbsp; $10</div>
+      </div>
+      <div style="text-align:right;">
+        <div class="item-row" style="justify-content:flex-end;"><span style="font-size:.93rem;">Old Bay Fries</span><span class="item-price" style="font-size:.93rem; margin-left:16px;">$6</span></div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ══════════════════════════════════
+     PAGE 6 — BURGERS & SANDWICHES
+════════════════════════════════════ -->
+<div class="page" id="burgers">
+  <div class="page-inner">
+    <div class="corner-tr"></div><div class="corner-bl"></div>
+    <div class="vine-left"><svg viewBox="0 0 20 120" width="18" height="80"><path d="M10 0 Q4 20 10 30 Q16 40 10 50 Q4 60 10 70 Q16 80 10 90 Q4 100 10 110 Q14 118 10 120" stroke="#b8922a" stroke-width="1.5" fill="none"/><circle cx="10" cy="30" r="3"/><circle cx="10" cy="60" r="3"/><circle cx="10" cy="90" r="3"/></svg></div>
+    <div class="vine-right"><svg viewBox="0 0 20 120" width="18" height="80"><path d="M10 0 Q16 20 10 30 Q4 40 10 50 Q16 60 10 70 Q4 80 10 90 Q16 100 10 110 Q6 118 10 120" stroke="#b8922a" stroke-width="1.5" fill="none"/><circle cx="10" cy="30" r="3"/><circle cx="10" cy="60" r="3"/><circle cx="10" cy="90" r="3"/></svg></div>
+
+    <div class="crest">
+      <div class="crest-line"></div>
+      <svg viewBox="0 0 120 60" xmlns="http://www.w3.org/2000/svg" width="90" height="52">
+        <path d="M15 30 Q10 15 20 10 Q28 6 30 15 Q32 22 25 25" stroke="#b8922a" stroke-width="1.5" fill="none"/><circle cx="15" cy="30" r="2.5"/>
+        <path d="M105 30 Q110 15 100 10 Q92 6 90 15 Q88 22 95 25" stroke="#b8922a" stroke-width="1.5" fill="none"/><circle cx="105" cy="30" r="2.5"/>
+        <path d="M50 30 L60 10 L70 30 L60 50 Z" fill="#b8922a" opacity=".8"/>
+        <circle cx="60" cy="30" r="5" fill="#f7f0e3"/><circle cx="60" cy="30" r="2.5" fill="#b8922a"/>
+        <path d="M45 12 Q52 4 60 8 Q68 4 75 12" stroke="#b8922a" stroke-width="1.2" fill="none"/>
+        <line x1="30" y1="30" x2="48" y2="30" stroke="#b8922a" stroke-width="1"/>
+        <line x1="72" y1="30" x2="90" y2="30" stroke="#b8922a" stroke-width="1"/>
+      </svg>
+      <div class="crest-line"></div>
+    </div>
+
+    <div style="display:flex; align-items:flex-start; gap:20px;">
+      <div style="flex:1;">
+        <div class="section-title-plain">1/2 pound Burgers</div>
+        <div style="height:18px;"></div>
+
+        <div class="item-row"><span class="item-name">*Hamburger</span><span class="item-price">$10</span></div>
+        <div class="item-sub" style="padding-left:16px;">lettuce &amp; tomato</div>
+
+        <div class="item-row"><span class="item-name">*Cheeseburger</span><span class="item-price">$11</span></div>
+        <div class="item-sub" style="padding-left:16px;">lettuce &amp; tomato</div>
+
+        <div class="item-row"><span class="item-name">*Bacon Cheeseburger</span><span class="item-price">$14</span></div>
+        <div class="item-sub" style="padding-left:16px;">bacon, lettuce &amp; tomato</div>
+
+        <div class="item-row"><span class="item-name">*Double Cheeseburger</span><span class="item-price">$16</span></div>
+        <div class="item-sub" style="padding-left:16px;">lettuce &amp; tomato</div>
+
+        <div class="item-row"><span class="item-name">*Deluxe Cheeseburger</span><span class="item-price">$13</span></div>
+        <div class="item-sub" style="padding-left:16px;">mushrooms, green peppers, onions &amp; provolone cheese</div>
+      </div>
+
+      <div style="text-align:center; border:2px solid #f5d060; background:#fffbe8; padding:10px 14px; font-size:.85rem; margin-top:30px; white-space:nowrap;">
+        add<br><strong style="font-size:1rem;">FRIES</strong><br>only<br><strong style="font-size:1rem;">$4 more</strong>
+      </div>
+    </div>
+
+    <div class="gold-rule">— ✦ —</div>
+
+    <div id="sandwiches">
+      <div class="item-row"><span class="section-title-plain" style="font-size:1.2rem;">SANDWICHES</span><span class="item-price">$12</span></div>
+      <div style="font-style:italic; font-size:.9rem; color:#3a2a10; margin-bottom:14px;">Comes with lettuce, tomato</div>
+
+      <div class="two-col">
+        <div>
+          <div class="sub-heading">Ham &amp; Cheese Sandwich</div>
+          <div class="sub-heading">Chef`s Cold Cut Sandwich</div>
+          <div class="item-sub" style="padding-left:14px;">Ham, turkey, american cheese</div>
+          <div class="sub-heading">Turkey Sandwich</div>
+          <div class="sub-heading">Chicken Salad Sandwich</div>
+        </div>
+        <div>
+          <div class="sub-heading">B.L.T.</div>
+          <div class="sub-heading">Grilled Chicken Sandwich</div>
+          <div class="sub-heading">Breaded Chicken Sandwich</div>
+          <div class="sub-heading">Grilled Cheese w/ fries</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ══════════════════════════════════
+     PAGE 7 — QUESADILLAS / CLUBS / SUBS
+════════════════════════════════════ -->
+<div class="page" id="quesadillas">
+  <div class="page-inner">
+    <div class="corner-tr"></div><div class="corner-bl"></div>
+    <div class="vine-left"><svg viewBox="0 0 20 120" width="18" height="80"><path d="M10 0 Q4 20 10 30 Q16 40 10 50 Q4 60 10 70 Q16 80 10 90 Q4 100 10 110 Q14 118 10 120" stroke="#b8922a" stroke-width="1.5" fill="none"/><circle cx="10" cy="30" r="3"/><circle cx="10" cy="60" r="3"/><circle cx="10" cy="90" r="3"/></svg></div>
+    <div class="vine-right"><svg viewBox="0 0 20 120" width="18" height="80"><path d="M10 0 Q16 20 10 30 Q4 40 10 50 Q16 60 10 70 Q4 80 10 90 Q16 100 10 110 Q6 118 10 120" stroke="#b8922a" stroke-width="1.5" fill="none"/><circle cx="10" cy="30" r="3"/><circle cx="10" cy="60" r="3"/><circle cx="10" cy="90" r="3"/></svg></div>
+
+    <div class="crest">
+      <div class="crest-line"></div>
+      <svg viewBox="0 0 120 60" xmlns="http://www.w3.org/2000/svg" width="90" height="52">
+        <path d="M15 30 Q10 15 20 10 Q28 6 30 15 Q32 22 25 25" stroke="#b8922a" stroke-width="1.5" fill="none"/><circle cx="15" cy="30" r="2.5"/>
+        <path d="M105 30 Q110 15 100 10 Q92 6 90 15 Q88 22 95 25" stroke="#b8922a" stroke-width="1.5" fill="none"/><circle cx="105" cy="30" r="2.5"/>
+        <path d="M50 30 L60 10 L70 30 L60 50 Z" fill="#b8922a" opacity=".8"/>
+        <circle cx="60" cy="30" r="5" fill="#f7f0e3"/><circle cx="60" cy="30" r="2.5" fill="#b8922a"/>
+        <path d="M45 12 Q52 4 60 8 Q68 4 75 12" stroke="#b8922a" stroke-width="1.2" fill="none"/>
+        <line x1="30" y1="30" x2="48" y2="30" stroke="#b8922a" stroke-width="1"/>
+        <line x1="72" y1="30" x2="90" y2="30" stroke="#b8922a" stroke-width="1"/>
+      </svg>
+      <div class="crest-line"></div>
+    </div>
+
+    <div class="section-title-plain">Quesadillas</div>
+    <div class="section-note">made with cheese blend, served with side of sour cream &amp; salsa</div>
+
+    <div class="two-col" style="margin-bottom:28px;">
+      <div>
+        <div class="item-row"><span class="item-name">Cheese Quesadilla</span><span class="item-price">$12</span></div>
+        <div class="item-row"><span class="item-name">Chicken Quesadilla</span><span class="item-price">$14</span></div>
+        <div class="item-row"><span class="item-name">Steak Quesadilla</span><span class="item-price">$15</span></div>
+        <div class="item-row"><span class="item-name">Shrimp Quesadilla</span><span class="item-price">$17</span></div>
+        <div style="height:8px;"></div>
+        <div class="item-row"><span class="item-name">Veggie Quesadilla</span><span class="item-price">$15</span></div>
+        <div class="item-sub">tomato, onion, green peppers, spinach &amp; mushroom</div>
+      </div>
+      <div></div>
+    </div>
+
+    <div class="gold-rule">— ✦ —</div>
+
+    <!-- Club Sandwiches -->
+    <div style="text-align:right; margin-bottom:6px;">
+      <div class="item-row" style="justify-content:flex-end; gap:20px;">
+        <span class="item-name">Club Sandwiches</span>
+        <span class="item-price">$17</span>
+      </div>
+      <div style="font-style:italic; font-size:.92rem; color:#3a2a10;">
+        Comes with lettuce, tomato, bacon<br>Serves with French Fries
+      </div>
+      <div style="margin-top:10px; font-family:'Playfair Display',serif; font-size:.97rem; font-weight:700; line-height:1.9;">
+        Turkey<br>Chicken<br>Ham &amp; Cheese<br>Hamburger<br>M5 Cut
+      </div>
+    </div>
+
+    <div class="gold-rule">— ✦ —</div>
+
+    <!-- Subs -->
+    <div>
+      <div class="item-row" style="gap:30px;">
+        <span class="item-name" style="font-size:1.25rem;">Subs</span>
+        <span class="item-price">Sm $10 &nbsp;&nbsp; lg $14</span>
+      </div>
+      <div style="height:10px;"></div>
+      <div style="text-align:center; font-family:'Playfair Display',serif; font-weight:700; font-size:.97rem; line-height:2;">
+        Cheese Steak<br>
+        Chicken Cheese Steak<br>
+        Cheeseburger<br>
+        Turkey<br>
+        Italian Cold Cut<br>
+        Ham–Tur Cold Cut
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+document.querySelectorAll('nav a').forEach(a => {
+  a.addEventListener('click', e => {
+    e.preventDefault();
+    const t = document.querySelector(a.getAttribute('href'));
+    if (t) t.scrollIntoView({ behavior: 'smooth' });
+  });
+});
+</script>
+</body>
+</html>
